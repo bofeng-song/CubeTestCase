@@ -1,5 +1,5 @@
 
-import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label } from 'cc';
+import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, renderer } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -13,6 +13,11 @@ const { ccclass, property } = _decorator;
  * ManualUrl = https://docs.cocos.com/creator/3.3/manual/en/
  *
  */
+
+let maxX = 0;
+let minX = 0;
+let maxY = 0;
+let minY = 0;
 
 @ccclass('CubeManager')
 export class CubeManager extends Component {
@@ -29,16 +34,31 @@ export class CubeManager extends Component {
     @property({ type: Label })
     private countTitle: Label = null;
 
-    private _currentCount = 0;
-    private _deltaPos: Vec3 = new Vec3(0.01, 0, 0);
-    private _nodeCache: Node[] = [];
-    private _rotateQuat = new math.Quat(360, 0, 0, 1);
-    private _scaleFactor2 = new math.Vec3(2, 1, 1);
-    private _scaleFactor1_5 = new math.Vec3(1.5, 1, 1);
-    private _scaleNormalFactor = new math.Vec3(1, 1, 1);
-    private _scaleFactor0_5 = new math.Vec3(0.5, 1, 1);
-    private _scaleFactor0_1 = new math.Vec3(0.1, 1, 1);
+    @property({ type: renderer.scene.Camera })
+    private cubeCamera: renderer.scene.Camera = null;
 
+    private _currentCount = 0;
+    private _deltaPos: Vec3 = new Vec3(0.01, 0.001, 0);
+    private _nodeCache: Node[] = [];
+    private _rotateAnxisX = new math.Quat(360, 0, 0, 1);
+    private _rotateAnxisY = new math.Quat(0, 360, 0, 1);
+    private _rotateAnxisZ = new math.Quat(0, 0, 360, 1);
+
+    onLoad() {
+        if (this.cubeCamera) {
+            let distance = Math.abs(this.node.getChildByName("Camera").getPosition().z); // 摄像机到矩形的距离
+            let height = 2.0 * distance * Math.tan(math.toRadian(this.cubeCamera.fov * 0.5));
+            let aspect = this.cubeCamera.aspect;
+            if (aspect === undefined) {
+                aspect = 1;
+            }
+            let width = height * aspect;
+            maxX = width / 2;
+            maxY = height / 2;
+            minX = -maxX;
+            minY = -maxY;
+        }
+    }
 
     start() {
         this.onAddButtonClicked();
@@ -48,8 +68,10 @@ export class CubeManager extends Component {
         for (let i = 0; i < this.countStep; i++) {
             if (this._currentCount < this.maxCount) {
                 let cubeNode: Node = instantiate(this.cubePrfb);
-                cubeNode.setPosition(-25 + Math.random() * 50, -5 + Math.random() * 20, -5 + Math.random() * 20);
+                cubeNode.setPosition(-maxX + Math.random() * maxX * 2, -maxY + Math.random() * maxY * 2, 0);
                 cubeNode.setRotation(0, 0, 0, 1);
+                let scale = 0.1 + Math.random() * 1;
+                cubeNode.setScale(scale, scale, 1);
                 this._nodeCache.push(cubeNode);
                 this.node.addChild(cubeNode);
                 this._currentCount += 1;
@@ -82,24 +104,24 @@ export class CubeManager extends Component {
     update(deltaTime: number) {
         this._nodeCache.forEach((cubeNode, index) => {
             let pos = cubeNode.getPosition();
-            // if (pos.x > 30) {
-            //     pos.x = -pos.x;
-            //     cubeNode.scale = this._scaleFactor0_1;
-            //     cubeNode.setPosition(pos);
-            // } else if (pos.x > 25) {
-            //     cubeNode.scale = this._scaleFactor0_5;
-            // } else if (pos.x > 15) {
-            //     cubeNode.scale = this._scaleNormalFactor;
-            // } else if (pos.x >= 10) {
-            //     cubeNode.scale = this._scaleFactor1_5;
-            // } else if (pos.x > 5) {
-            //     cubeNode.scale = this._scaleFactor2;
-            // } else if (pos.x > -10) {
-            //     cubeNode.scale = this._scaleNormalFactor;
-            // }
-            cubeNode.setScale(math.absMax(2 - Math.abs(pos.x) / 20, 0), 1);
+            if (pos.x > maxX) {
+                pos.x = minX;
+                cubeNode.setPosition(pos);
+            }
+            if (pos.y > maxY) {
+                pos.y = minY;
+                cubeNode.setPosition(pos);
+            }
             cubeNode.translate(this._deltaPos);
-            cubeNode.rotate(this._rotateQuat);
+            let val = index % 3;
+            if (val == 0) {
+                cubeNode.rotate(this._rotateAnxisX);
+            } else if (val == 1) {
+                cubeNode.rotate(this._rotateAnxisY);
+            } else {
+                cubeNode.rotate(this._rotateAnxisZ);
+            }
+            cubeNode.setScale(Math.abs(Math.sin(pos.x)) + 0.1, (Math.abs(Math.sin(pos.y)) + 0.1));
         });
     }
 }
