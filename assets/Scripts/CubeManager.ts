@@ -1,5 +1,5 @@
 
-import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, renderer } from 'cc';
+import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, renderer, Sprite, SpriteFrame, Camera } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -34,25 +34,29 @@ export class CubeManager extends Component {
     @property({ type: Label })
     private countTitle: Label = null;
 
-    @property({ type: renderer.scene.Camera })
-    private cubeCamera: renderer.scene.Camera = null;
+    @property({ type: Camera })
+    private cubeCamera: Camera = null;
+
+    // @property({ type: SpriteFrame })
+    // private frames: SpriteFrame[] = null;
 
     private _currentCount = 0;
-    private _deltaPos: Vec3 = new Vec3(0.01, 0.001, 0);
+    private _deltaPos: Vec3 = new Vec3(0.05, 0.05, 0);
     private _nodeCache: Node[] = [];
     private _rotateAnxisX = new math.Quat(360, 0, 0, 1);
     private _rotateAnxisY = new math.Quat(0, 360, 0, 1);
-    private _rotateAnxisZ = new math.Quat(0, 0, 360, 1);
+    private _rotateAnxisZ = new math.Quat(0, 0, 0, 1);
 
     onLoad() {
         if (this.cubeCamera) {
-            let distance = Math.abs(this.node.getChildByName("Camera").getPosition().z); // 摄像机到矩形的距离
-            let height = 2.0 * distance * Math.tan(math.toRadian(this.cubeCamera.fov * 0.5));
-            let aspect = this.cubeCamera.aspect;
+            let cameraNode: renderer.scene.Camera = this.node.getChildByName("Camera");
+            let distance = Math.abs(cameraNode.getPosition().z); // 摄像机到当前平面的距离
+            let height = 2.0 * distance * Math.tan(math.toRadian(this.cubeCamera.fov * 0.5));// 视椎体在当前平面下的可视高度
+            let aspect = cameraNode.aspect;
             if (aspect === undefined) {
                 aspect = 1;
             }
-            let width = height * aspect;
+            let width = height * aspect;// 视椎体在当前平面下的可视宽度
             maxX = width / 2;
             maxY = height / 2;
             minX = -maxX;
@@ -68,6 +72,8 @@ export class CubeManager extends Component {
         for (let i = 0; i < this.countStep; i++) {
             if (this._currentCount < this.maxCount) {
                 let cubeNode: Node = instantiate(this.cubePrfb);
+                // let sprite = cubeNode.addComponent(Sprite);
+                // sprite.color = 0;
                 cubeNode.setPosition(-maxX + Math.random() * maxX * 2, -maxY + Math.random() * maxY * 2, 0);
                 cubeNode.setRotation(0, 0, 0, 1);
                 let scale = 0.1 + Math.random() * 1;
