@@ -1,5 +1,5 @@
 
-import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, renderer, RenderableComponent, Camera, Material } from 'cc';
+import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, RenderableComponent, Material } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -18,6 +18,7 @@ let maxX = 0;
 let minX = 0;
 let maxY = 0;
 let minY = 0;
+let speedFactor = 0.2;
 
 @ccclass('CubeManager')
 export class CubeManager extends Component {
@@ -31,8 +32,17 @@ export class CubeManager extends Component {
     @property({ type: Label })
     private countTitle: Label = null;
 
-    @property({ type: Camera })
-    private cubeCamera: Camera = null;
+    @property({ type: Node })
+    private topLeftNode: Node = null;
+
+    @property({ type: Node })
+    private topRightNode: Node = null;
+
+    @property({ type: Node })
+    private bottomLeftNode: Node = null;
+
+    @property({ type: Node })
+    private bottomRightNode: Node = null;
 
     @property({ type: Material })
     private redMaterial: Material = null;
@@ -50,20 +60,10 @@ export class CubeManager extends Component {
     private _rotateAnxisZ = new math.Quat(0, 0, 360, 1);
 
     onLoad() {
-        if (this.cubeCamera) {
-            let cameraNode: renderer.scene.Camera = this.node.getChildByName("Camera");
-            let distance = Math.abs(cameraNode.getPosition().z); // 摄像机到当前平面的距离
-            let height = 2.0 * distance * Math.tan(math.toRadian(this.cubeCamera.fov * 0.5));// 视椎体在当前平面下的可视高度
-            let aspect = cameraNode.aspect;
-            if (aspect === undefined) {
-                aspect = 1;
-            }
-            let width = height * aspect;// 视椎体在当前平面下的可视宽度
-            maxX = width / 2;
-            maxY = height / 2;
-            minX = -maxX;
-            minY = -maxY;
-        }
+        maxX = this.topRightNode.getPosition().x;
+        maxY = this.topRightNode.getPosition().y;
+        minX = this.topLeftNode.getPosition().x;
+        minY = this.bottomLeftNode.getPosition().y;
     }
 
     start() {
@@ -76,12 +76,22 @@ export class CubeManager extends Component {
             let renderable: RenderableComponent = cubeNode.getComponent(RenderableComponent);
             let val = i % 4;
             if (val == 0) {
+                cubeNode.speedX = math.random() * speedFactor;
+                cubeNode.speedY = math.random() * speedFactor;
                 renderable.material = this.greenMaterial;
             } else if (val == 1) {
+                cubeNode.speedX = math.random() * -speedFactor;
+                cubeNode.speedY = math.random() * speedFactor;
                 renderable.material = this.redMaterial;
             } else if (val == 2) {
+                cubeNode.speedX = math.random() * speedFactor;
+                cubeNode.speedY = math.random() * -speedFactor;
                 renderable.material = this.blueMaterial;
+            } else {
+                cubeNode.speedX = math.random() * -speedFactor;
+                cubeNode.speedY = math.random() * -speedFactor;
             }
+
             cubeNode.setPosition(-maxX + Math.random() * maxX * 2, -maxY + Math.random() * maxY * 2, 0);
             cubeNode.setRotation(0, 0, 0, 1);
             let scale = 0.1 + Math.random() * 1;
@@ -110,20 +120,14 @@ export class CubeManager extends Component {
         this.countTitle.string = "" + this._currentCount;
     }
 
-    onScaleButtonClicked() {
-        //
-    }
-
     update(deltaTime: number) {
         this._nodeCache.forEach((cubeNode, index) => {
             let pos = cubeNode.getPosition();
-            if (pos.x > maxX) {
-                pos.x = minX;
-                cubeNode.setPosition(pos);
+            if (pos.x > maxX || pos.x < minX) {
+                cubeNode.speedX *= -1;
             }
-            if (pos.y > maxY) {
-                pos.y = minY;
-                cubeNode.setPosition(pos);
+            if (pos.y > maxY || pos.y < minY) {
+                cubeNode.speedY *= -1;
             }
 
             let val = index % 3;
@@ -136,7 +140,7 @@ export class CubeManager extends Component {
                 cubeNode.rotate(this._rotateAnxisZ);
             }
             cubeNode.setScale(Math.abs(Math.sin(pos.x)) + 0.1, (Math.abs(Math.sin(pos.y)) + 0.1));
-            cubeNode.setPosition(pos.x + 0.05, pos.y + 0.05);
+            cubeNode.setPosition(pos.x + cubeNode.speedX, pos.y + cubeNode.speedY);
         });
     }
 }
