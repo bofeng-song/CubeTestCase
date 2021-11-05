@@ -26,9 +26,6 @@ export class CubeManager extends Component {
     public cubePrfb: Prefab = null;
 
     @property({ type: CCInteger })
-    private maxCount: Number = 1000;
-
-    @property({ type: CCInteger })
     private countStep: Number = 50;
 
     @property({ type: Label })
@@ -47,11 +44,10 @@ export class CubeManager extends Component {
     private greenMaterial: Material = null;
 
     private _currentCount = 0;
-    private _deltaPos: Vec3 = new Vec3(0.05, 0.05, 0);
     private _nodeCache: Node[] = [];
     private _rotateAnxisX = new math.Quat(360, 0, 0, 1);
     private _rotateAnxisY = new math.Quat(0, 360, 0, 1);
-    private _rotateAnxisZ = new math.Quat(0, 0, 0, 1);
+    private _rotateAnxisZ = new math.Quat(0, 0, 360, 1);
 
     onLoad() {
         if (this.cubeCamera) {
@@ -76,25 +72,23 @@ export class CubeManager extends Component {
 
     onAddButtonClicked() {
         for (let i = 0; i < this.countStep; i++) {
-            if (this._currentCount < this.maxCount) {
-                let cubeNode: Node = instantiate(this.cubePrfb);
-                let renderable: RenderableComponent = cubeNode.getComponent(RenderableComponent);
-                let val = i % 4;
-                if (val == 0) {
-                    renderable.material = this.greenMaterial;
-                } else if (val == 1) {
-                    renderable.material = this.redMaterial;
-                } else if (val == 2) {
-                    renderable.material = this.blueMaterial;
-                }
-                cubeNode.setPosition(-maxX + Math.random() * maxX * 2, -maxY + Math.random() * maxY * 2, 0);
-                cubeNode.setRotation(0, 0, 0, 1);
-                let scale = 0.1 + Math.random() * 1;
-                cubeNode.setScale(scale, scale, 1);
-                this._nodeCache.push(cubeNode);
-                this.node.addChild(cubeNode);
-                this._currentCount += 1;
+            let cubeNode: Node = instantiate(this.cubePrfb);
+            let renderable: RenderableComponent = cubeNode.getComponent(RenderableComponent);
+            let val = i % 4;
+            if (val == 0) {
+                renderable.material = this.greenMaterial;
+            } else if (val == 1) {
+                renderable.material = this.redMaterial;
+            } else if (val == 2) {
+                renderable.material = this.blueMaterial;
             }
+            cubeNode.setPosition(-maxX + Math.random() * maxX * 2, -maxY + Math.random() * maxY * 2, 0);
+            cubeNode.setRotation(0, 0, 0, 1);
+            let scale = 0.1 + Math.random() * 1;
+            cubeNode.setScale(scale, scale, 1);
+            this._nodeCache.push(cubeNode);
+            this.node.addChild(cubeNode);
+            this._currentCount += 1;
         }
         this.countTitle.string = "" + this._currentCount;
     }
@@ -131,16 +125,18 @@ export class CubeManager extends Component {
                 pos.y = minY;
                 cubeNode.setPosition(pos);
             }
-            cubeNode.translate(this._deltaPos);
+
             let val = index % 3;
             if (val == 0) {
                 cubeNode.rotate(this._rotateAnxisX);
+                // cubeNode.angle = cubeNode.angle + 1;
             } else if (val == 1) {
                 cubeNode.rotate(this._rotateAnxisY);
             } else {
                 cubeNode.rotate(this._rotateAnxisZ);
             }
             cubeNode.setScale(Math.abs(Math.sin(pos.x)) + 0.1, (Math.abs(Math.sin(pos.y)) + 0.1));
+            cubeNode.setPosition(pos.x + 0.05, pos.y + 0.05);
         });
     }
 }

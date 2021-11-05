@@ -251,7 +251,6 @@
       "__uuid__": "5c772ff7-65b9-4a86-bef2-348acb2902f5",
       "__expectedType__": "cc.Prefab"
     },
-    "maxCount": 1000,
     "countStep": 50,
     "countTitle": {
       "__id__": 9
