@@ -259,6 +259,18 @@
     "cubeCamera": {
       "__id__": 7
     },
+    "redMaterial": {
+      "__uuid__": "77f0170f-2e77-4a86-9db4-e7e8734c4082",
+      "__expectedType__": "cc.Material"
+    },
+    "blueMaterial": {
+      "__uuid__": "8112b4ab-6563-4536-8077-073b3e0d9f23",
+      "__expectedType__": "cc.Material"
+    },
+    "greenMaterial": {
+      "__uuid__": "c4d7a8ff-47c8-420a-86ec-58991accd9c1",
+      "__expectedType__": "cc.Material"
+    },
     "_id": "00kwHx8wFFXaNYYPDUgrLY"
   },
   {
@@ -465,7 +477,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 524.5269016697589,
+    "_orthoHeight": 524.4444444444445,
     "_near": 1,
     "_far": 2000,
     "_color": {

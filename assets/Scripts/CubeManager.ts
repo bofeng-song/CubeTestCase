@@ -1,5 +1,5 @@
 
-import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, renderer, Sprite, SpriteFrame, Camera } from 'cc';
+import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, renderer, RenderableComponent, Camera, Material } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -37,8 +37,14 @@ export class CubeManager extends Component {
     @property({ type: Camera })
     private cubeCamera: Camera = null;
 
-    // @property({ type: SpriteFrame })
-    // private frames: SpriteFrame[] = null;
+    @property({ type: Material })
+    private redMaterial: Material = null;
+
+    @property({ type: Material })
+    private blueMaterial: Material = null;
+
+    @property({ type: Material })
+    private greenMaterial: Material = null;
 
     private _currentCount = 0;
     private _deltaPos: Vec3 = new Vec3(0.05, 0.05, 0);
@@ -72,8 +78,15 @@ export class CubeManager extends Component {
         for (let i = 0; i < this.countStep; i++) {
             if (this._currentCount < this.maxCount) {
                 let cubeNode: Node = instantiate(this.cubePrfb);
-                // let sprite = cubeNode.addComponent(Sprite);
-                // sprite.color = 0;
+                let renderable: RenderableComponent = cubeNode.getComponent(RenderableComponent);
+                let val = i % 4;
+                if (val == 0) {
+                    renderable.material = this.greenMaterial;
+                } else if (val == 1) {
+                    renderable.material = this.redMaterial;
+                } else if (val == 2) {
+                    renderable.material = this.blueMaterial;
+                }
                 cubeNode.setPosition(-maxX + Math.random() * maxX * 2, -maxY + Math.random() * maxY * 2, 0);
                 cubeNode.setRotation(0, 0, 0, 1);
                 let scale = 0.1 + Math.random() * 1;
