@@ -1,5 +1,5 @@
 
-import { _decorator, Component, systemEvent, Prefab, instantiate, Node, CCInteger, math, Label, RenderableComponent, Material, SystemEvent, EventTouch } from 'cc';
+import { _decorator, Component, systemEvent, Prefab, instantiate, Node, CCInteger, math, Label, RenderableComponent, Material, SystemEvent, EventTouch, Canvas } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -74,7 +74,8 @@ export class CubeManager extends Component {
 
     onScreenTouch(touch, event) {
         let touchInfo: EventTouch = event;
-        if (touchInfo.touch.getLocation().x >= window.innerWidth / 2) {
+        let width = this.node.scene.renderScene.root.mainWindow.width;
+        if (touchInfo.touch.getLocationX() >= width / 2) {
             this.onAddButtonClicked();
         } else {
             this.onDeleteButtonClicked();
