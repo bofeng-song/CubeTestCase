@@ -1,5 +1,5 @@
 
-import { _decorator, Component, systemEvent, Prefab, instantiate, Node, CCInteger, math, Label, RenderableComponent, Material, SystemEvent, EventTouch } from 'cc';
+import { _decorator, Component, Vec3, Prefab, instantiate, Node, CCInteger, math, Label, RenderableComponent, Material } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -29,8 +29,8 @@ export class CubeManager extends Component {
     @property({ type: CCInteger })
     private countStep: Number = 50;
 
-    // @property({ type: Label })
-    // private countTitle: Label = null;
+    @property({ type: Label })
+    private countTitle: Label = null;
 
     @property({ type: Node })
     private topLeftNode: Node = null;
@@ -59,28 +59,16 @@ export class CubeManager extends Component {
     private _rotateAnxisY = new math.Quat(0, 360, 0, 1);
     private _rotateAnxisZ = new math.Quat(0, 0, 360, 1);
 
-
     onLoad() {
         maxX = this.topRightNode.getPosition().x;
         maxY = this.topRightNode.getPosition().y;
         minX = this.topLeftNode.getPosition().x;
         minY = this.bottomLeftNode.getPosition().y;
-        systemEvent.on(SystemEvent.EventType.TOUCH_END, this.onScreenTouch, this);
     }
 
     start() {
         this.onAddButtonClicked();
     }
-
-    onScreenTouch(touch, event) {
-        let touchInfo: EventTouch = event;
-        if (touchInfo.touch.getLocation().x >= window.innerWidth / 2) {
-            this.onAddButtonClicked();
-        } else {
-            this.onDeleteButtonClicked();
-        }
-    }
-
 
     onAddButtonClicked() {
         for (let i = 0; i < this.countStep; i++) {
@@ -112,7 +100,7 @@ export class CubeManager extends Component {
             this.node.addChild(cubeNode);
             this._currentCount += 1;
         }
-        // this.countTitle.string = "" + this._currentCount;
+        this.countTitle.string = "" + this._currentCount;
     }
 
     onDeleteButtonClicked() {
@@ -129,7 +117,7 @@ export class CubeManager extends Component {
                 break;
             }
         }
-        // this.countTitle.string = "" + this._currentCount;
+        this.countTitle.string = "" + this._currentCount;
     }
 
     update(deltaTime: number) {
