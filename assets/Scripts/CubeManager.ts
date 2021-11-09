@@ -27,7 +27,7 @@ export class CubeManager extends Component {
     public cubePrfb: Prefab = null;
 
     @property({ type: CCInteger })
-    private countStep: Number = 50;
+    private countStep: Number = 100;
 
     @property({ type: Label })
     private countTitle: Label = null;

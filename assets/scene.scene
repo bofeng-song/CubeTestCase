@@ -419,7 +419,7 @@
       "__uuid__": "5c772ff7-65b9-4a86-bef2-348acb2902f5",
       "__expectedType__": "cc.Prefab"
     },
-    "countStep": 50,
+    "countStep": 100,
     "countTitle": {
       "__id__": 13
     },
@@ -653,7 +653,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 524.4444444444445,
+    "_orthoHeight": 524.5269016697589,
     "_near": 1,
     "_far": 2000,
     "_color": {
